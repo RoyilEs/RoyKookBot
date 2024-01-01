@@ -1,0 +1,14 @@
+{
+  "component": "simbot.kook",
+  "ticket": {
+    "clientId": "xxxx",
+    "token": "xxxx"
+  },
+  "config": {
+    "timeout": {
+      "connectTimeoutMillis": 20000,
+      "requestTimeoutMillis": 20000,
+      "socketTimeoutMillis": null
+    }
+  }
+}
