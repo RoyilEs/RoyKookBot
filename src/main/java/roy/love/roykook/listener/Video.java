@@ -24,14 +24,13 @@ public class Video {
     @Listener
     @Filter(value = "/v")
     public void video(MessageEvent event){
-        String s = OK3HttpClient.httpGet("https://api.xn--ei1aa.cn/API/kuaishou_nv.php?type=json", null, null);
+        String s = OK3HttpClient.httpGet("https://v2.api-m.com/api/meinv", null, null);
         JsonObject jsonObject = new Gson().fromJson(s, JsonObject.class);
 
-        String url = jsonObject.getAsJsonObject("data").get("Video").getAsString();
-        String cover = jsonObject.getAsJsonObject("data").get("Cover").getAsString();
-        String title = jsonObject.getAsJsonObject("data").get("Title").getAsString();
+        String url = jsonObject.getAsJsonObject().get("data").getAsString();
+        System.out.println(url);
 
-        CardModule.Files.Video dp = CardModule.Files.Video.video(url, title, cover);
+        CardModule.Files.Video dp = CardModule.Files.Video.video(url, "t", "t");
 
         CardMessageBuilder cardMessageBuilder = new CardMessageBuilder();
         List<CardModule> modules = new ArrayList<>();
