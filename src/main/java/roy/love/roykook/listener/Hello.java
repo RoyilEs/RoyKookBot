@@ -9,42 +9,37 @@ import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
-import com.alibaba.dashscope.utils.Constants;
-import com.alibaba.dashscope.utils.JsonUtils;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import jakarta.websocket.Session;
 import love.forte.simboot.annotation.ContentTrim;
 import love.forte.simboot.annotation.Filter;
 import love.forte.simboot.annotation.FilterValue;
 import love.forte.simboot.annotation.Listener;
 import love.forte.simbot.ID;
-import love.forte.simbot.bot.Bot;
-import love.forte.simbot.definition.Channel;
-import love.forte.simbot.definition.Group;
 import love.forte.simbot.definition.Guild;
 import love.forte.simbot.event.ChannelMessageEvent;
 
-import love.forte.simbot.event.EventProcessingResult;
-import love.forte.simbot.message.Messages;
 import love.forte.simbot.message.MessagesBuilder;
-import love.forte.simbot.message.Text;
 import love.forte.simbot.resources.Resource;
 import love.forte.simbot.utils.item.Items;
-import org.checkerframework.checker.units.qual.C;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import roy.love.roykook.utils.AccessLimitService;
 import roy.love.roykook.utils.AlibabaToken;
 import roy.love.roykook.utils.OK3HttpClient;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 
 
 @Component
 public class Hello {
+
     Random random = new Random();
+
+
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Listener
     @Filter(value = "你好", targets = @Filter.Targets(atBot = true))
@@ -93,18 +88,26 @@ public class Hello {
     @Filter(value = "cnm {{msg}}")
     public static void callWithMessage(ChannelMessageEvent event, @FilterValue("msg")String msg)
             throws NoApiKeyException, ApiException, InputRequiredException {
+
+        AccessLimitService accessLimitService = new AccessLimitService();
         Generation gen = new Generation();
-            MessageManager msgManager = new MessageManager(10);
-            Message systemMsg =
-                    Message.builder().role(Role.SYSTEM.getValue()).content("You are a helpful assistant.").build();
-            Message userMsg = Message.builder().role(Role.USER.getValue()).content(msg).build();
-            msgManager.add(systemMsg);
-            msgManager.add(userMsg);
-            QwenParam param =
-                    QwenParam.builder().model(Generation.Models.QWEN_TURBO).messages(msgManager.get())
-                            .resultFormat(QwenParam.ResultFormat.MESSAGE)
-                            .build();
-            GenerationResult result = gen.call(param);
+        MessageManager msgManager = new MessageManager(10);
+        Message systemMsg =
+                Message.builder().role(Role.SYSTEM.getValue()).content("You are a helpful assistant.").build();
+        Message userMsg = Message.builder().role(Role.USER.getValue()).content(msg).build();
+        msgManager.add(systemMsg);
+        msgManager.add(userMsg);
+        QwenParam param =
+                QwenParam.builder().model(Generation.Models.QWEN_TURBO).messages(msgManager.get())
+                        .resultFormat(QwenParam.ResultFormat.MESSAGE)
+                        .build();
+        GenerationResult result = gen.call(param);
+       // 获取令牌
+        if (accessLimitService.tryAcquire()) {
             event.getChannel().sendBlocking(result.getOutput().getChoices().get(0).getMessage().getContent());
+        } else {
+            event.getChannel().sendAsync("限流触发[" + sdf.format(new Date()) + "]");
+        }
+
     }
 }
