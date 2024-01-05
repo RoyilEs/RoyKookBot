@@ -9,6 +9,7 @@ import love.forte.simbot.event.ChannelMessageEvent;
 import love.forte.simbot.kook.objects.card.*;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+import roy.love.roykook.utils.Msg;
 import roy.love.roykook.utils.OK3HttpClient;
 
 import java.net.MalformedURLException;
@@ -58,7 +59,7 @@ public class DDTool {
                             "粉丝数\n" + followers + "\n" +
                             "签名\n" + sign + "\n";
                     var buttons = getButtons(roomId, vtbId);
-                    var texts = getTest(test);
+                    var texts = Msg.getTest(test);
                     event.replyAsync(DDCardMsg(images, texts, buttons));
 
                 break;
@@ -95,20 +96,9 @@ public class DDTool {
                         + "粉丝数\n" + followers_now + "\n"
                         + "签名\n" + sign_now + "\n";
                 var buttons_now = getButtons(roomid_now, uID);
-                var texts_now = getTest(text);
+                var texts_now = Msg.getTest(text);
                 event.replyAsync(DDCardMsg(images_now, texts_now, buttons_now));
         }
-    }
-
-    @NotNull
-    private static ArrayList<CardElement.KMarkdown> getTest(String test) {
-        String[] splitS = test.split("\\n");
-        var elements = new ArrayList<CardElement.KMarkdown>();
-        for (int i = 1; i < splitS.length; i += 2) {
-            splitS[i - 1] = "**" + splitS[i - 1]+ "**";
-            elements.add(new CardElement.KMarkdown(splitS[i - 1] + "\n" + splitS[i]));
-        }
-        return elements;
     }
 
     @NotNull

@@ -1,12 +1,12 @@
 package roy.love.roykook.utils;
 
 import com.google.common.util.concurrent.RateLimiter;
-import org.springframework.stereotype.Service;
 
-@Service
+import java.util.concurrent.TimeUnit;
+
 public class AccessLimitService {
 
-    RateLimiter rateLimiter = RateLimiter.create(2);
+    RateLimiter rateLimiter = RateLimiter.create(2, 1, TimeUnit.MILLISECONDS);
 
 
     /**
