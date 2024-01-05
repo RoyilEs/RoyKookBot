@@ -39,7 +39,7 @@ public class Hello {
     Random random = new Random();
 
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Listener
     @Filter(value = "你好", targets = @Filter.Targets(atBot = true))

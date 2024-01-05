@@ -3,10 +3,13 @@ package roy.love.roykook.utils;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.ID;
 import love.forte.simbot.event.ChannelMessageEvent;
+import love.forte.simbot.kook.objects.card.CardElement;
 import love.forte.simbot.message.Message;
 import love.forte.simbot.message.Text;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 
 @Slf4j
 public class Msg {
@@ -49,5 +52,16 @@ public class Msg {
      */
     public static long longId(String time) {
         return Long.parseLong(time.trim());
+    }
+
+    @NotNull
+    public static ArrayList<CardElement.KMarkdown> getTest(String test) {
+        String[] splitS = test.split("\\n");
+        var elements = new ArrayList<CardElement.KMarkdown>();
+        for (int i = 1; i < splitS.length; i += 2) {
+            splitS[i - 1] = "**" + splitS[i - 1]+ "**";
+            elements.add(new CardElement.KMarkdown(splitS[i - 1] + "\n" + splitS[i]));
+        }
+        return elements;
     }
 }
