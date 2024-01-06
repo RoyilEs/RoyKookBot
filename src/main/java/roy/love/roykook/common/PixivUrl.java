@@ -4,6 +4,9 @@ package roy.love.roykook.common;
 import roy.love.roykook.dao.Pixiv;
 import roy.love.roykook.utils.OK3HttpClient;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class PixivUrl extends Pixiv {
 
     // 获取图片
@@ -36,6 +39,14 @@ public class PixivUrl extends Pixiv {
                 + "&num=" + getNum()
                 + "&tag=" + getTag()
                 + "&size=" + getSize();
+        System.out.println(urlGroup);
         return OK3HttpClient.httpGet(urlGroup, null, null);
+    }
+
+    public static String SmallToRegular(String url) {
+        List<String> strings = new java.util.ArrayList<>(Arrays.stream(url.split("/")).toList());
+        strings.remove(3);
+        strings.remove(3);
+        return String.join("/", strings);
     }
 }

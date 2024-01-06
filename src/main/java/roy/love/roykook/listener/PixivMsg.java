@@ -17,9 +17,11 @@ import org.springframework.stereotype.Component;
 import roy.love.roykook.common.PixivUrl;
 import roy.love.roykook.utils.Msg;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -32,7 +34,9 @@ public class PixivMsg {
     @Filter("/img {{tag}}")
     public void ChannelPixivMsg(ChannelMessageEvent event, @FilterValue("tag")String tag) {
         // PixivApi
-        String s = new PixivUrl(0,1,tag,"small").GetPixivUrl();
+        PixivUrl pixivUrl = new PixivUrl(0, 1, tag, "small");
+        String size = pixivUrl.getSize();
+        String s = pixivUrl.GetPixivUrl();
         CardMessageBuilder cardMessageBuilder = new CardMessageBuilder();
 
         JsonObject jsonObject = new Gson().fromJson(s, JsonObject.class);
@@ -49,17 +53,29 @@ public class PixivMsg {
                     "Title\n" + title + "\n" +
                     "Author\n" + author + "\n";
             var texts = Msg.getTest(text);
-            String imgUrl = jsonElement.getAsJsonObject().get("urls").getAsJsonObject().get("small").getAsString();
-            List<CardElement.Image> images = new ArrayList<>();
-            images.add(new CardElement.Image(imgUrl, "114514", Size.LG));
+            String imgUrl = jsonElement.getAsJsonObject().get("urls").getAsJsonObject().get(size).getAsString();
+            String originalUrl = PixivUrl.SmallToRegular(imgUrl);
+            var room = new CardElement.PlainText("查看原图");
+            var button = new CardElement.Button(Theme.SUCCESS,
+                    originalUrl,
+                    "link", room);
+            var buttons = new ArrayList<CardElement.Button>();
+            buttons.add(button);
             List<CardModule> modules = new ArrayList<>();
-            modules.add(new CardModule.ImageGroup(images));
             texts.forEach(e -> modules.add(new CardModule.Section(e)));
+            modules.add(new CardModule.ActionGroup(buttons));
             event.getChannel().sendAsync(new KookCardMessage(cardMessageBuilder
                     .card(Theme.PRIMARY, modules)
                     .build()));
+            try {
+                event.getChannel().sendAsync(new MessagesBuilder()
+                        .image(Resource.of(new URL(imgUrl))).build());
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
         });
-
     }
+
+
 
 }
